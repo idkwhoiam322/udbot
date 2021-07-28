@@ -73,17 +73,28 @@ fn get_each_input(
 
     // URL does not need to be set for fallback case
     let mut urlinfo = String::from("");
+
+    // Since we are displaying content separately in the inline query,
+    // we have to handle it separately and not as a part of text.
+    // Handling it as a part of text also wouldn't help with the individual
+    // quotations at the beginning and end of content and example.
     // Do NOT cleanup text for fallback case
     if id.ne("-1") {
         // We only want to remove the first and last quotations
         // in each case.
         title = rem_first_and_last_char(title);
-//        content = rem_first_and_last_char(&content).to_string();
+        content = rem_first_and_last_char(&content).to_string();
         example = rem_first_and_last_char(&example).to_string();
+
         // Replace \" with "
         example = example.replace("\\\"", "\"");
+
         // Replace \r\n with \n
-        example = example.replace("\\r\\n", "\n");
+        content = content.replace("\\r", "\r");
+        content = content.replace("\\n", "\n");
+        example = example.replace("\\r", "\r");
+        example = example.replace("\\n", "\n");
+
         // We are not showcasing additional definitions
         content = content.replace("[", "");
         content = content.replace("]", "");
