@@ -3,7 +3,9 @@ use std::fs::File;
 use std::io::{Read, Write};
 use std::process::Command;
 use teloxide::types::{
-    InlineQueryResult, InlineQueryResultArticle, InputMessageContent, InputMessageContentText,
+    InlineQueryResult, InlineQueryResultArticle,
+    InputMessageContent, InputMessageContentText,
+    InlineKeyboardButton, InlineKeyboardMarkup,
     ParseMode,
 };
 
@@ -72,7 +74,7 @@ fn get_each_input(
     let mut example = String::from(original_example);
 
     // URL does not need to be set for fallback case
-    let mut urlinfo = String::from("");
+    let mut ud_shortened_url = String::from("");
 
     // Since we are displaying content separately in the inline query,
     // we have to handle it separately and not as a part of text.
@@ -108,18 +110,18 @@ fn get_each_input(
         example = example.replace(">", "&gt;");
 
         // Set URL for getting more information
-        urlinfo = format!("<a href='urbanup.com/{}'> More information at urbandictionary.com</a>", id);
+        ud_shortened_url = format!("urbanup.com/{}", id);
     }
 
     // This is the final text output sent as a message
     let text;
     if example.eq("") {
         // No example available.
-        text = format!("ℹ️ <b>Definition of {}:</b>\n{}\n\n{}",
-                            title, content, urlinfo);
+        text = format!("ℹ️ <b>Definition of {}:</b>\n{}",
+                            title, content);
     } else {
-        text = format!("ℹ️ <b>Definition of {}:</b>\n{}\n\n<b>Examples:</b>\n<i>{}</i>\n\n{}",
-                            title, content, example, urlinfo);
+        text = format!("ℹ️ <b>Definition of {}:</b>\n{}\n\n<b>Examples:</b>\n<i>{}</i>",
+                            title, content, example);
     }
 
     // Use HTML formatting for text
@@ -129,11 +131,29 @@ fn get_each_input(
                     .disable_web_page_preview(true)
                     );
 
-    // .description() is what shows in inline request options
-    // Keep it same as content so user is not misled.
-    InlineQueryResult::Article(InlineQueryResultArticle
-                        ::new(id, title, input)
-                        .description(content))
+    let buttons = vec![InlineKeyboardButton::url(
+                    "More Information (Urban Dictionary)".to_string(),
+                        ud_shortened_url)];
+
+    let inline_keyboard = InlineKeyboardMarkup::default()
+                            .append_row(buttons);
+
+    if id.ne("-1") {
+        // .description() is what shows in inline request options
+        // Keep it same as content so user is not misled.
+        InlineQueryResult::Article(InlineQueryResultArticle
+                            ::new(id, title, input)
+                            .description(content)
+                            .reply_markup(inline_keyboard) // Inline Keyboard only if we actually have a result
+                        )
+    } else {
+        // .description() is what shows in inline request options
+        // Keep it same as content so user is not misled.
+        InlineQueryResult::Article(InlineQueryResultArticle
+            ::new(id, title, input)
+            .description(content)
+        )
+    }
 }
 
 fn rem_first_and_last_char(initial_string: &str) -> &str {
