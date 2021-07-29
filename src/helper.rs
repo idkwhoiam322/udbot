@@ -89,6 +89,7 @@ fn get_each_input(
         example = rem_first_and_last_char(&example).to_string();
 
         // Replace \" with "
+        content = content.replace("\\\"", "\"");
         example = example.replace("\\\"", "\"");
 
         // Replace \r\n with \n
