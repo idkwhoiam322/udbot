@@ -10,12 +10,12 @@ blocks:
   - name: "Build and Push"
     task:
       secrets:
-        - name: api-keys
+        - name: telegram_bot_env
 
       jobs:
       - name: Build
         commands:
-          - curl https://cli-assets.heroku.com/install.sh | sh 
+          - curl https://cli-assets.heroku.com/install.sh | sh
           - git init
           - git fetch https://github.com/idkwhoiam322/udbot $SEMAPHORE_GIT_SHA
           - git reset --hard FETCH_HEAD
