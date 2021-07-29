@@ -10,7 +10,13 @@ use teloxide::types::{
 };
 
 pub fn get_data_from_api(title: &str) -> Vec<InlineQueryResult> { //
-    let searchurl:String = format!("https://api.urbandictionary.com/v0/define?term={}", title);
+    let searchurl;
+    if title.contains(" ") {
+        // Handle multiple words
+        searchurl = format!("https://api.urbandictionary.com/v0/define?term=\"{}\"", title);
+    } else {
+        searchurl = format!("https://api.urbandictionary.com/v0/define?term={}", title);
+    }
     println!("{}", searchurl);
     Command::new("bash")
         .arg("scripts/getapidata.sh")
