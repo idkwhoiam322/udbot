@@ -25,4 +25,4 @@ blocks:
           - git init
           - git fetch https://github.com/idkwhoiam322/udbot $SEMAPHORE_GIT_SHA
           - git reset --hard FETCH_HEAD
-          - git push https://git.heroku.com/idkwhoiam-udbot.git HEAD:master
+          - git push -f https://git.heroku.com/idkwhoiam-udbot.git HEAD:master
