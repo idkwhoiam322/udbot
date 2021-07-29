@@ -12,9 +12,10 @@ blocks:
       secrets:
         - name: telegram_bot_env
 
-      jobs:
-      - name: Build
+      prologue:
         commands:
+          - checkout
+          - cache restore udbot-buildcache
           - curl https://cli-assets.heroku.com/install.sh | sh
           - echo "machine api.heroku.com" >> ~/.netrc
           - echo "  login baalajimaestro@computer4u.com" >> ~/.netrc
@@ -22,7 +23,15 @@ blocks:
           - echo "machine git.heroku.com" >> ~/.netrc
           - echo "  login baalajimaestro@computer4u.com" >> ~/.netrc
           - echo "  password $HEROKU_PASSWORD" >> ~/.netrc
-          - git init
-          - git fetch https://github.com/idkwhoiam322/udbot $SEMAPHORE_GIT_SHA
-          - git reset --hard FETCH_HEAD
-          - git push -f https://git.heroku.com/idkwhoiam-udbot.git HEAD:master
+
+      jobs:
+      - name: Build
+        commands:
+          - docker build -f Dockerfile.builder -t build-container .
+          - docker run -v $(pwd):/build build-container
+      epilogue:
+        on_pass:
+          commands:
+            - bash push.sh
+            - cache delete udbot-buildcache
+            - cache store udbot-buildcache $(pwd)/target
