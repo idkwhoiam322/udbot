@@ -23,8 +23,9 @@ WORKDIR /build
 RUN cargo build --release
 
 FROM fedora:34
-RUN mkdir /app
+RUN mkdir -p /app/scripts
 WORKDIR /app
 COPY --from=builder /build/target/release/udbot /app
-RUN chmod 777 /app/udbot
+COPY --from=builder /build/scripts/getapidata.sh /app/scripts
+RUN chmod -R 777 /app
 CMD ["/app/udbot"]
