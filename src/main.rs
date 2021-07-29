@@ -47,10 +47,18 @@ async fn run() -> Result<(), Box<dyn Error>> {
     Dispatcher::new(tg_bot)
         .messages_handler(|rx: DispatcherHandlerRx<Bot, Message>| {
             UnboundedReceiverStream::new(rx).for_each_concurrent(None, |query| async move {
-                handle_message(query)
-                    .await
-                    .log_on_error()
-                    .await
+                match &query.update.chat.kind {
+                    teloxide::types::ChatKind::Public(_) => {
+                        // Intentionally left empty
+                        // Don't post welcome message to groups
+                    }
+                    teloxide::types::ChatKind::Private(_) => {
+                        handle_message(query)
+                        .await
+                        .log_on_error()
+                        .await
+                    }
+                }
             })
         })
         .inline_queries_handler(move |rx: DispatcherHandlerRx<Bot, InlineQuery>| {
