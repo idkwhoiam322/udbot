@@ -9,7 +9,7 @@ use teloxide::types::{
     ParseMode,
 };
 
-pub fn get_data_from_api(title: &str) -> Vec<InlineQueryResult> { //
+pub fn get_data_from_api(title: &str) -> Vec<InlineQueryResult> {
     let searchurl;
     if title.contains(" ") {
         // Handle multiple words
