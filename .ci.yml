@@ -16,6 +16,12 @@ blocks:
       - name: Build
         commands:
           - curl https://cli-assets.heroku.com/install.sh | sh
+          - echo "machine api.heroku.com" >> ~/.netrc
+          - echo "  login baalajimaestro@computer4u.com" >> ~/.netrc
+          - echo "  password $HEROKU_PASSWORD" >> ~/.netrc
+          - echo "machine git.heroku.com" >> ~/.netrc
+          - echo "  login baalajimaestro@computer4u.com" >> ~/.netrc
+          - echo "  password $HEROKU_PASSWORD" >> ~/.netrc
           - git init
           - git fetch https://github.com/idkwhoiam322/udbot $SEMAPHORE_GIT_SHA
           - git reset --hard FETCH_HEAD
