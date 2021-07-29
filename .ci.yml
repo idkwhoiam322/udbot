@@ -1,0 +1,22 @@
+version: v1.0
+name: Heroku Push
+
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu2004
+
+blocks:
+  - name: "Build and Push"
+    task:
+      secrets:
+        - name: api-keys
+
+      jobs:
+      - name: Build
+        commands:
+          - curl https://cli-assets.heroku.com/install.sh | sh 
+          - git init
+          - git fetch https://github.com/idkwhoiam322/udbot $SEMAPHORE_GIT_SHA
+          - git reset --hard FETCH_HEAD
+          - git push https://git.heroku.com/idkwhoiam-udbot.git HEAD:master
