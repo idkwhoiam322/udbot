@@ -5,9 +5,12 @@ use std::error::Error;
 use teloxide::{
     prelude::*,
     requests::ResponseResult,
-    types::ParseMode,
+    types:: {
+        ParseMode, Me,
+    }
 };
 use tokio_stream::wrappers::UnboundedReceiverStream;
+use chrono::prelude::*;
 
 const WELCOME_MESSAGE: &str = "Hi! I post word definitions from Urban Dictionary.\n
 USAGE: @rsurbandictionarybot your_word_of_choice\n
@@ -24,6 +27,23 @@ async fn main() -> Result<(), Box<dyn Error>> {
 async fn run() -> Result<(), Box<dyn Error>> {
     let tg_bot = Bot::from_env();
     teloxide::enable_logging!();
+
+    let chat_id:i64 = -1001527066155; // test chat
+
+    let Me { user: bot_user, .. } = tg_bot.get_me().send().await.unwrap();
+    let bot_name = bot_user.username.expect("Bots must have usernames");
+    let utc_time: DateTime<Utc> = chrono::Utc::now();
+    let startpost_text = format!("Starting @{} at <code>{}-{}-{} {}:{}:{} UTC</code>.",
+                            bot_name,
+                            utc_time.year(), utc_time.month(), utc_time.day(),
+                            utc_time.hour(), utc_time.minute(), utc_time.second());
+
+    tg_bot.send_message(chat_id, startpost_text)
+        .parse_mode(ParseMode::Html)
+        .send()
+        .await
+        .expect("Message could not be sent");
+
     Dispatcher::new(tg_bot)
         .messages_handler(|rx: DispatcherHandlerRx<Bot, Message>| {
             UnboundedReceiverStream::new(rx).for_each_concurrent(None, |query| async move {
