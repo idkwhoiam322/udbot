@@ -13,8 +13,8 @@ use tokio_stream::wrappers::UnboundedReceiverStream;
 use chrono::prelude::*;
 
 const WELCOME_MESSAGE: &str = "Hi! I post word definitions from Urban Dictionary.\n
-USAGE: @rsurbandictionarybot your_word_of_choice\n
-EXAMPLE: @rsurbandictionarybot hello\n
+Usage: @rsurbandictionarybot &lt;any word&gt;\n
+Example: @rsurbandictionarybot hello\n
 Owner: @idkwhoiam322\n
 Source code: https://github.com/idkwhoiam322/udbot";
 
