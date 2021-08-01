@@ -114,14 +114,11 @@ fn get_each_input(
     example = format_text(example);
 
     // This is the final text output sent as a message
-    let text;
-    if example.eq("") {
-        // No example available.
-        text = format!("ℹ️ <b>Definition of {}:</b>\n{}",
-                            title, content);
-    } else {
-        text = format!("ℹ️ <b>Definition of {}:</b>\n{}\n\n<b>Examples:</b>\n<i>{}</i>",
-                            title, content, example);
+    let mut text = format!("ℹ️ <b>Definition of {}:</b>\n{}", title, content);
+
+    // Append examples if ( and only if ) there are any
+    if example.ne("") {
+        text.push_str(format!("\n\n<b>Examples:</b>\n<i>{}</i>", example).as_str());
     }
 
     // Use HTML formatting for text
