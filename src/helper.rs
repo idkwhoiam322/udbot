@@ -110,27 +110,8 @@ fn get_each_input(
     content = rem_first_and_last_char(&content).to_string();
     example = rem_first_and_last_char(&example).to_string();
 
-    // Replace \" with "
-    content = content.replace("\\\"", "\"");
-    example = example.replace("\\\"", "\"");
-
-    // Replace \r\n with \n
-    content = content.replace("\\r", "\r");
-    content = content.replace("\\n", "\n");
-    example = example.replace("\\r", "\r");
-    example = example.replace("\\n", "\n");
-
-    // We are not showcasing additional definitions
-    content = content.replace("[", "");
-    content = content.replace("]", "");
-    example = example.replace("[", "");
-    example = example.replace("]", "");
-
-    // Get rid of fake html tags
-    content = content.replace("<", "&lt;");
-    content = content.replace(">", "&gt;");
-    example = example.replace("<", "&lt;");
-    example = example.replace(">", "&gt;");
+    content = format_text(content);
+    example = format_text(example);
 
     // This is the final text output sent as a message
     let text;
@@ -171,4 +152,23 @@ fn rem_first_and_last_char(initial_string: &str) -> &str {
     final_string.next();
     final_string.next_back();
     final_string.as_str()
+}
+
+fn format_text(mut text: String) -> String {
+    // Replace \" with "
+    text = text.replace("\\\"", "\"");
+
+    // Replace \r\n with \n
+    text = text.replace("\\r", "\r");
+    text = text.replace("\\n", "\n");
+
+    // We are not showcasing additional definitions
+    text = text.replace("[", "");
+    text = text.replace("]", "");
+
+    // Get rid of fake html tags
+    text = text.replace("<", "&lt;");
+    text = text.replace(">", "&gt;");
+
+    text
 }
