@@ -28,6 +28,11 @@ pub fn get_data_from_api(title: &str) -> Vec<InlineQueryResult> {
     let mut old_data = String::new();
     source_file.read_to_string(&mut old_data).unwrap();
     drop(source_file);
+
+    let json_file = File::open("input.json").unwrap();
+    let initial_list: serde_json::Value = serde_json::from_reader(json_file).unwrap();
+    let length = initial_list["list"].as_array().unwrap().len();
+
     // Change required at start of file
     let new_data = old_data.replace("{\"list\":", "");
     // Change required at end of file
@@ -36,89 +41,96 @@ pub fn get_data_from_api(title: &str) -> Vec<InlineQueryResult> {
     let is_valid_word = new_data.chars().any(|c| matches!(c, 'a'..='z')); // returns true/false
 
     let mut result: Vec<InlineQueryResult> = Vec::new();
-    if is_valid_word {
-        _delete_file("input.json".to_string());
-        let mut destination_file = File::create("input.json").unwrap();
-        destination_file.write(new_data.as_bytes()).unwrap();
-        drop(destination_file);
+    _delete_file("input.json".to_string());
+    let mut destination_file = File::create("input.json").unwrap();
+    destination_file.write(new_data.as_bytes()).unwrap();
+    drop(destination_file);
 
+    if is_valid_word {
         let json_file = File::open("input.json").unwrap();
         let value: serde_json::Value = serde_json::from_reader(json_file).unwrap();
 
-        let mut i = 0;
-        while value[i]["definition"].to_string().ne("null") {
+        for i in 0..length {
             result.push(get_each_input(
-                            &value[i]["word"].to_string(),
-                            &value[i]["definition"].to_string(),
-                            &value[i]["example"].to_string(),
-                            &value[i]["defid"].to_string().to_string()
+                            &value,
+                            i,
+                            length
                         )
                     );
-            i = i + 1;
         }
     } else {
-        println!("This word was not found in UD library.");
-        result.push(get_each_input(
-                        title,
-                        "This word was not found in UD library.",
-                        "",
-                        "-1"
+        result.push(get_each_input_fallback(
+                    title
                     )
                 );
     }
 
-   result
+    result
+}
+
+fn get_each_input_fallback(title: &str) -> InlineQueryResult {
+    let content = String::from("This word was not found in UD library.".to_string());
+    let id = String::from("-1".to_string());
+
+    let text = format!("ℹ️ <b>Definition of {}:</b>\n{}", title, content);
+
+    let input = InputMessageContent::Text(
+                    InputMessageContentText::new(text.to_owned())
+                    .parse_mode(ParseMode::Html)
+                    .disable_web_page_preview(true)
+                );
+
+    InlineQueryResult::Article(InlineQueryResultArticle
+            ::new(id, title, input)
+            .description(content)
+        )
 }
 
 fn get_each_input(
-    original_title: &str, original_content: &str,
-    original_example: &str, id: &str
+    value: &serde_json::Value,
+    i: usize,
+    _total: usize
 ) -> InlineQueryResult {
-    // Don't modify original data
-    let mut title = original_title;
-    let mut content = String::from(original_content);
-    let mut example = String::from(original_example);
+    let mut title = String::from(&value[i]["word"].to_string());
+    let mut content = String::from(&value[i]["definition"].to_string());
+    let mut example = String::from(&value[i]["example"].to_string());
+    let id = String::from(&value[i]["defid"].to_string());
 
-    // URL does not need to be set for fallback case
-    let mut ud_shortened_url = String::from("");
+    // Set URL for getting more information
+    let ud_shortened_url = String::from(format!("urbanup.com/{}", id));
 
     // Since we are displaying content separately in the inline query,
     // we have to handle it separately and not as a part of text.
     // Handling it as a part of text also wouldn't help with the individual
     // quotations at the beginning and end of content and example.
-    // Do NOT cleanup text for fallback case
-    if id.ne("-1") {
-        // We only want to remove the first and last quotations
-        // in each case.
-        title = rem_first_and_last_char(title);
-        content = rem_first_and_last_char(&content).to_string();
-        example = rem_first_and_last_char(&example).to_string();
 
-        // Replace \" with "
-        content = content.replace("\\\"", "\"");
-        example = example.replace("\\\"", "\"");
+    // We only want to remove the first and last quotations
+    // in each case.
+    title = rem_first_and_last_char(&title).to_string();
+    content = rem_first_and_last_char(&content).to_string();
+    example = rem_first_and_last_char(&example).to_string();
 
-        // Replace \r\n with \n
-        content = content.replace("\\r", "\r");
-        content = content.replace("\\n", "\n");
-        example = example.replace("\\r", "\r");
-        example = example.replace("\\n", "\n");
+    // Replace \" with "
+    content = content.replace("\\\"", "\"");
+    example = example.replace("\\\"", "\"");
 
-        // We are not showcasing additional definitions
-        content = content.replace("[", "");
-        content = content.replace("]", "");
-        example = example.replace("[", "");
-        example = example.replace("]", "");
+    // Replace \r\n with \n
+    content = content.replace("\\r", "\r");
+    content = content.replace("\\n", "\n");
+    example = example.replace("\\r", "\r");
+    example = example.replace("\\n", "\n");
 
-        // Get rid of fake html tags
-        content = content.replace("<", "&lt;");
-        content = content.replace(">", "&gt;");
-        example = example.replace("<", "&lt;");
-        example = example.replace(">", "&gt;");
+    // We are not showcasing additional definitions
+    content = content.replace("[", "");
+    content = content.replace("]", "");
+    example = example.replace("[", "");
+    example = example.replace("]", "");
 
-        // Set URL for getting more information
-        ud_shortened_url = format!("urbanup.com/{}", id);
-    }
+    // Get rid of fake html tags
+    content = content.replace("<", "&lt;");
+    content = content.replace(">", "&gt;");
+    example = example.replace("<", "&lt;");
+    example = example.replace(">", "&gt;");
 
     // This is the final text output sent as a message
     let text;
@@ -145,22 +157,13 @@ fn get_each_input(
     let inline_keyboard = InlineKeyboardMarkup::default()
                             .append_row(buttons);
 
-    if id.ne("-1") {
-        // .description() is what shows in inline request options
-        // Keep it same as content so user is not misled.
-        InlineQueryResult::Article(InlineQueryResultArticle
-                            ::new(id, title, input)
-                            .description(content)
-                            .reply_markup(inline_keyboard) // Inline Keyboard only if we actually have a result
-                        )
-    } else {
-        // .description() is what shows in inline request options
-        // Keep it same as content so user is not misled.
-        InlineQueryResult::Article(InlineQueryResultArticle
-            ::new(id, title, input)
-            .description(content)
-        )
-    }
+    // .description() is what shows in inline request options
+    // Keep it same as content so user is not misled.
+    InlineQueryResult::Article(InlineQueryResultArticle
+                        ::new(id, title, input)
+                        .description(content)
+                        .reply_markup(inline_keyboard) // Inline Keyboard only if we actually have a result
+                    )
 }
 
 fn rem_first_and_last_char(initial_string: &str) -> &str {
