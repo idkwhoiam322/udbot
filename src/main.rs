@@ -7,13 +7,15 @@ use teloxide::{
     requests::ResponseResult,
     types:: {
         ParseMode, Me,
+        MessageKind, MediaKind,
     }
 };
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use chrono::prelude::*;
 
-const WELCOME_MESSAGE: &str = "Hi! I post word definitions from Urban Dictionary.\n
-Usage: @rsurbandictionarybot &lt;any word&gt;\n
+const START_POST: &str = "Hi! I am Urban Dictionary Bot - made using Rust!\n
+I post word definitions from Urban Dictionary.\n
+Usage: @rsurbandictionarybot &lt;word&gt;\n
 Example: @rsurbandictionarybot hello\n
 Owner: @idkwhoiam322\n
 Source code: https://github.com/idkwhoiam322/udbot";
@@ -79,11 +81,29 @@ async fn run() -> Result<(), Box<dyn Error>> {
 async fn handle_message(
     query: UpdateWithCx<Bot, Message>
 ) -> ResponseResult<()> {
-    query
-        .answer(WELCOME_MESSAGE)
-        .parse_mode(ParseMode::Html)
-        .send()
-        .await?;
+
+    let mut message_text = String::new();
+    // Get message text from DM
+    match &query.update.kind {
+        MessageKind::Common(message_kind) => {
+            match &message_kind.media_kind {
+                MediaKind::Text(message) => {
+                    message_text = message.text.clone();
+                }
+                _ => (), // Don't care about non text messages
+            }
+        },
+        _ => (), // Don't care
+    };
+
+    if message_text.eq("/start") {
+        query
+            .answer(START_POST)
+            .parse_mode(ParseMode::Html)
+            .disable_web_page_preview(true)
+            .send()
+            .await?;
+    }
 
     // respond(()) is a shortcut for ResponseResult::Ok(()).
     respond(())
