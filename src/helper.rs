@@ -116,10 +116,8 @@ fn get_each_input(
     // This is the final text output sent as a message
     let mut text = format!("ℹ️ <b>Definition of {}:</b>\n{}", title, content);
 
-    // Append examples if ( and only if ) there are any
-    if example.ne("") {
-        text.push_str(format!("\n\n<b>Examples:</b>\n<i>{}</i>", example).as_str());
-    }
+    // Append examples
+    text.push_str(format!("\n\n<b>Examples:</b>\n<i>{}</i>", example).as_str());
 
     // Use HTML formatting for text
     let input = InputMessageContent::Text(
