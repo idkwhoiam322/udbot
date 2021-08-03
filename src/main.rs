@@ -1,5 +1,6 @@
 mod file_handling;
 mod helper;
+mod formatter;
 use helper::get_data_from_api;
 use std::error::Error;
 use teloxide::{
