@@ -14,11 +14,11 @@ use teloxide::{
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use chrono::prelude::*;
 
-const START_POST: &str = "Hi! I am Urban Dictionary Bot - made using Rust!\n
+const START_POST: &str = "Hi! I am Urban Dictionary Bot - made using Rust!
 I post word definitions from Urban Dictionary.\n
-Usage: @rsurbandictionarybot &lt;word&gt;\n
+Usage: @rsurbandictionarybot &lt;word&gt;
 Example: @rsurbandictionarybot hello\n
-Owner: @idkwhoiam322\n
+Owner: @idkwhoiam322
 Source code: https://github.com/idkwhoiam322/udbot";
 
 #[tokio::main]
