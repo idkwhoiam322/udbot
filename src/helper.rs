@@ -143,8 +143,8 @@ fn text_cleanup(title: &mut String, content: &mut String, example: &mut String) 
     *content = rem_first_and_last_char(&content).to_string();
     *example = rem_first_and_last_char(&example).to_string();
 
-    *content = format_text(content.to_string());
-    *example = format_text(example.to_string());
+    *content = prevent_htmlisation(content.to_string());
+    *example = prevent_htmlisation(example.to_string());
 }
 
 fn rem_first_and_last_char(initial_string: &str) -> &str {
@@ -154,7 +154,7 @@ fn rem_first_and_last_char(initial_string: &str) -> &str {
     final_string.as_str()
 }
 
-fn format_text(mut text: String) -> String {
+fn prevent_htmlisation(mut text: String) -> String {
     // Replace \" with "
     text = text.replace("\\\"", "\"");
 
