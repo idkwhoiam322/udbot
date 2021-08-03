@@ -96,22 +96,11 @@ fn get_each_input(
     let mut example = String::from(&value[i]["example"].to_string());
     let id = String::from(&value[i]["defid"].to_string());
 
+    // Data can be cleaned up in its own function
+    text_cleanup(&mut title, &mut content, &mut example);
+
     // Set URL for getting more information
     let ud_shortened_url = String::from(format!("urbanup.com/{}", id));
-
-    // Since we are displaying content separately in the inline query,
-    // we have to handle it separately and not as a part of text.
-    // Handling it as a part of text also wouldn't help with the individual
-    // quotations at the beginning and end of content and example.
-
-    // We only want to remove the first and last quotations
-    // in each case.
-    title = rem_first_and_last_char(&title).to_string();
-    content = rem_first_and_last_char(&content).to_string();
-    example = rem_first_and_last_char(&example).to_string();
-
-    content = format_text(content);
-    example = format_text(example);
 
     // This is the final text output sent as a message
     let mut text = format!("ℹ️ <b>Definition of {}:</b>\n{}", title, content);
@@ -140,6 +129,22 @@ fn get_each_input(
                         .description(content)
                         .reply_markup(inline_keyboard) // Inline Keyboard only if we actually have a result
                     )
+}
+
+fn text_cleanup(title: &mut String, content: &mut String, example: &mut String) {
+    // Since we are displaying content separately in the inline query,
+    // we have to handle it separately and not as a part of text.
+    // Handling it as a part of text also wouldn't help with the individual
+    // quotations at the beginning and end of content and example.
+
+    // We only want to remove the first and last quotations
+    // in each case.
+    *title = rem_first_and_last_char(&title).to_string();
+    *content = rem_first_and_last_char(&content).to_string();
+    *example = rem_first_and_last_char(&example).to_string();
+
+    *content = format_text(content.to_string());
+    *example = format_text(example.to_string());
 }
 
 fn rem_first_and_last_char(initial_string: &str) -> &str {
