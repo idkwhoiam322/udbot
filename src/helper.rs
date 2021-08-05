@@ -154,7 +154,7 @@ fn get_each_input(
     let ud_shortened_url = String::from(format!("urbanup.com/{}", id));
 
     // This is the final text output sent as a message
-    let mut text = format!("ℹ️ <b>Definition of {}:</b>\n{}", title, content);
+    let mut text = format!("<b>Top Result:</b>\nℹ️ <b>Definition of {}:</b>\n{}", title, content);
 
     // Append examples if ( and only if ) there are any
     if example.ne("") {
@@ -163,6 +163,8 @@ fn get_each_input(
 
     // Append source
     text.push_str(format!("\n\n<a href='{}'>Source (Urban Dictionary)</a>", ud_shortened_url).as_str());
+
+    text.push_str(format!("\n\nTo get more results, use the inline query method. See /help for more info.").as_str());
 
     text
 }
