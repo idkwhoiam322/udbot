@@ -90,17 +90,11 @@ async fn handle_message(
     // Assume not atext query by default
     let mut is_text_query = false;
     // Get message text from DM
-    match &query.update.kind {
-        MessageKind::Common(message_kind) => {
-            match &message_kind.media_kind {
-                MediaKind::Text(message) => {
-                    message_text = message.text.clone();
-                    is_text_query = true;
-                }
-                _ => (), // Handled already
-            }
-        },
-        _ => (), // Don't care
+    if let MessageKind::Common(message_kind) = &query.update.kind {
+        if let MediaKind::Text(message) = &message_kind.media_kind {
+            message_text = message.text.clone();
+            is_text_query = true;
+        }
     };
 
     if message_text.eq("/start") || message_text.eq("/help") {
