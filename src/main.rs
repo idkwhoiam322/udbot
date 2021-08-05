@@ -103,7 +103,7 @@ async fn handle_message(
         _ => (), // Don't care
     };
 
-    if message_text.eq("/start") {
+    if message_text.eq("/start") || message_text.eq("/help") {
         query
             .answer(START_POST)
             .parse_mode(ParseMode::Html)
