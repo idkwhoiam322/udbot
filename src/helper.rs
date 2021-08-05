@@ -14,7 +14,8 @@ pub fn get_data_from_api(title: &str) -> Vec<InlineQueryResult> {
     let searchurl;
     if title.contains(" ") {
         // Handle multiple words
-        searchurl = format!("https://api.urbandictionary.com/v0/define?term=\"{}\"", title);
+        let modified_search_query = title.replace(" ", "%20");
+        searchurl = format!("https://api.urbandictionary.com/v0/define?term=\"{}\"", modified_search_query);
     } else {
         searchurl = format!("https://api.urbandictionary.com/v0/define?term={}", title);
     }
