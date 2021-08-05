@@ -11,6 +11,7 @@ use teloxide::types::{
 };
 
 pub fn get_top_result(title: &str) -> String {
+    print!("Top Query: ");
     let searchurl = get_searchurl(title);
     Command::new("bash")
         .arg("scripts/getapidata.sh")
@@ -62,6 +63,7 @@ pub fn get_top_result(title: &str) -> String {
 }
 
 pub fn get_inline_results(title: &str) -> Vec<InlineQueryResult> {
+    print!("Inline Query: ");
     let searchurl = get_searchurl(title);
     Command::new("bash")
         .arg("scripts/getapidata.sh")
