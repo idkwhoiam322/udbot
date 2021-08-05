@@ -1,7 +1,10 @@
 mod file_handling;
 mod helper;
 mod formatter;
-use helper::get_data_from_api;
+use helper::{
+    get_top_result,
+    get_inline_results,
+};
 use std::error::Error;
 use teloxide::{
     prelude::*,
@@ -104,6 +107,14 @@ async fn handle_message(
             .disable_web_page_preview(true)
             .send()
             .await?;
+    } else {
+        let result = get_top_result(&message_text);
+        query
+            .answer(result)
+            .parse_mode(ParseMode::Html)
+            .disable_web_page_preview(true)
+            .send()
+            .await?;
     }
 
     // respond(()) is a shortcut for ResponseResult::Ok(()).
@@ -123,7 +134,7 @@ async fn handle_inline_query(
 
     println!("{:?}", text);
 
-    let results = get_data_from_api(&text);
+    let results = get_inline_results(&text);
     query
         .requester
         .answer_inline_query(id, results)

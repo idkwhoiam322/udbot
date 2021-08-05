@@ -1,4 +1,4 @@
 # Remove deprecated jsons
 rm -rf *.json;
 
-curl -o "input.json" $1;
+curl -o "$1" $2;
