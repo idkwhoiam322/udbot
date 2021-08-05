@@ -87,7 +87,7 @@ async fn handle_message(
 ) -> ResponseResult<()> {
 
     let mut message_text = String::new();
-    // Assume not atext query by default
+    // Assume not a text query by default
     let mut is_text_query = false;
     // Get message text from DM
     if let MessageKind::Common(message_kind) = &query.update.kind {
