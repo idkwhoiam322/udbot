@@ -37,7 +37,7 @@ pub fn get_top_result(title: &str) -> String {
     let is_valid_word = new_data.chars().any(|c| matches!(c, 'a'..='z')); // returns true/false
 
     let mut result = String::new();
-    _delete_file("PMQuery.json".to_string());
+    delete_file("PMQuery.json".to_string());
     let mut destination_file = File::create("PMQuery.json").unwrap();
     destination_file.write(new_data.as_bytes()).unwrap();
     drop(destination_file);
@@ -89,7 +89,7 @@ pub fn get_inline_results(title: &str) -> Vec<InlineQueryResult> {
     let is_valid_word = new_data.chars().any(|c| matches!(c, 'a'..='z')); // returns true/false
 
     let mut result: Vec<InlineQueryResult> = Vec::new();
-    _delete_file("InlineQuery.json".to_string());
+    delete_file("InlineQuery.json".to_string());
     let mut destination_file = File::create("InlineQuery.json").unwrap();
     destination_file.write(new_data.as_bytes()).unwrap();
     drop(destination_file);
