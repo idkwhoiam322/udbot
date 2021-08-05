@@ -87,14 +87,17 @@ async fn handle_message(
 ) -> ResponseResult<()> {
 
     let mut message_text = String::new();
+    // Assume not atext query by default
+    let mut is_text_query = false;
     // Get message text from DM
     match &query.update.kind {
         MessageKind::Common(message_kind) => {
             match &message_kind.media_kind {
                 MediaKind::Text(message) => {
                     message_text = message.text.clone();
+                    is_text_query = true;
                 }
-                _ => (), // Don't care about non text messages
+                _ => (), // Handled already
             }
         },
         _ => (), // Don't care
@@ -107,7 +110,7 @@ async fn handle_message(
             .disable_web_page_preview(true)
             .send()
             .await?;
-    } else if !message_text.contains("ℹ️") {
+    } else if is_text_query && !message_text.contains("ℹ️") {
         let result = get_top_result(&message_text);
         query
             .answer(result)
@@ -116,7 +119,7 @@ async fn handle_message(
             .send()
             .await?;
     } else {
-        println!("Ignoring InlineQuery message sent in DM.");
+        println!("Ignoring InlineQuery or a non text message sent in DM.");
     }
 
     // respond(()) is a shortcut for ResponseResult::Ok(()).
