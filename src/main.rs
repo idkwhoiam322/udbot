@@ -107,7 +107,7 @@ async fn handle_message(
             .disable_web_page_preview(true)
             .send()
             .await?;
-    } else {
+    } else if !message_text.contains("ℹ️") {
         let result = get_top_result(&message_text);
         query
             .answer(result)
@@ -115,6 +115,8 @@ async fn handle_message(
             .disable_web_page_preview(true)
             .send()
             .await?;
+    } else {
+        println!("Ignoring InlineQuery message sent in DM.");
     }
 
     // respond(()) is a shortcut for ResponseResult::Ok(()).
