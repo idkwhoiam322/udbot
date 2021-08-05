@@ -1,4 +1,5 @@
 mod file_handling;
+mod logger;
 mod helper;
 mod formatter;
 use helper::{
@@ -49,6 +50,8 @@ async fn run() -> Result<(), Box<dyn Error>> {
         .send()
         .await
         .expect("Message could not be sent");
+
+    logger::run(&tg_bot, chat_id).await;
 
     Dispatcher::new(tg_bot)
         .messages_handler(|rx: DispatcherHandlerRx<Bot, Message>| {
