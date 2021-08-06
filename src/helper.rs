@@ -33,14 +33,14 @@ pub fn get_top_result(title: &str) -> String {
     };
 
     let mut new_data; // modified json
-    let is_valid_word; // In case the query is invalid or does not exist in UD library
+    let is_valid_word; // In case the query is invalid or does not exist in UD API
 
     if length != 0 {
         // Change required at start of file
         new_data = old_data.replace("{\"list\":", "");
         // Change required at end of file
         new_data = new_data.replace("}]}", "}]");
-        // check if this word is present in UD library
+        // check if this word is present in UD API
         is_valid_word = new_data.chars().any(|c| matches!(c, 'a'..='z')); // returns true/false
 
         delete_file("PMQuery.json".to_string());
@@ -87,14 +87,14 @@ pub fn get_inline_results(title: &str) -> Vec<InlineQueryResult> {
     };
 
     let mut new_data; // modified json
-    let is_valid_word; // In case the query is invalid or does not exist in UD library
+    let is_valid_word; // In case the query is invalid or does not exist in UD API
 
     if length != 0 {
         // Change required at start of file
         new_data = old_data.replace("{\"list\":", "");
         // Change required at end of file
         new_data = new_data.replace("}]}", "}]");
-        // check if this word is present in UD library
+        // check if this word is present in UD API
         is_valid_word = new_data.chars().any(|c| matches!(c, 'a'..='z')); // returns true/false
 
         delete_file("InlineQuery.json".to_string());
@@ -134,7 +134,7 @@ fn get_searchurl(title: &str) -> String {
 }
 
 fn get_each_input_fallback(title: &str) -> String {
-    let content = String::from("This word was not found in UD library.".to_string());
+    let content = String::from("This word was not found in UD API.".to_string());
 
     let mut text = format!("ℹ️ <b>Definition of {}:</b>\n{}", title, content);
 
@@ -179,7 +179,7 @@ fn get_each_input(
 }
 
 fn get_each_input_fallback_inline(title: &str) -> InlineQueryResult {
-    let content = String::from("This word was not found in UD library.".to_string());
+    let content = String::from("This word was not found in UD API.".to_string());
     let id = String::from("-1".to_string());
 
     let text = format!("ℹ️ <b>Definition of {}:</b>\n{}", title, content);
