@@ -14,30 +14,9 @@ Ensure all of the following are set in your environment:
     - TELOXIDE_TOKEN = Telegram Bot token from t.me/BotFather
 ```
 
-## Image Preview:
-#### Valid Search Query
-<p align="left">
-<img src="images/udbot_hello_preview.jpg" alt="Search Query Hello Preview" width="200"/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="images/udbot_hello_result.jpg" alt="Search Query Hello Result" width="200"/>
-<br>
-<br>
-</p>
+## Preview:
+![Valid Search Query Preview](https://user-images.githubusercontent.com/31561543/128523257-2982e633-5cb7-4034-a396-191d6c9b8eff.mp4)
 
-#### Valid Search Query Button Usage
-<p align="left">
-<img src="images/udbot_hello_button_preview.jpg" alt="Search Query Hello Button OnPress Preview" width="200"/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="images/udbot_hello_ud_redirect.jpg" alt="Search Query Hello Button OnPress OPEN Result" width="200"/>
-<br>
-<br>
-</p>
-
-#### Invalid Search Query
-<p align="left">
-<img src="images/udbot_invalid_query_preview.jpg" alt="Invalid Search Query Preview" width="200"/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="images/udbot_invalid_query_result.jpg" alt="Invalid Search Query Result" width="200"/>
-</p>
+![Invalid Search Query Preview](https://user-images.githubusercontent.com/31561543/128523327-042787f2-e5f6-4baf-837d-c954e8ad8eba.mp4)
 
 Contact me: [Telegram](https://t.me/idkwhoiam322)
