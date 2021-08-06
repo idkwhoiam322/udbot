@@ -20,9 +20,9 @@ use tokio_stream::wrappers::UnboundedReceiverStream;
 use chrono::prelude::*;
 
 const START_POST: &str = "Hi! I am Urban Dictionary Bot - made using Rust!
-I post word definitions from Urban Dictionary.\n
-Usage: @rsurbandictionarybot &lt;word&gt;
-Example: @rsurbandictionarybot hello\n
+I post word definitions from Urban Dictionary.
+See /help for information on how to use this bot.
+
 Owner: @idkwhoiam322
 Source code: https://github.com/idkwhoiam322/udbot";
 
