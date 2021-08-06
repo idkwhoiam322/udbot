@@ -165,8 +165,10 @@ async fn handle_message(
             .disable_web_page_preview(true)
             .send()
             .await?;
+    } else if message_text.contains("ℹ️") {
+        println!("Ignoring InlineQuery sent in DM.");
     } else {
-        println!("Ignoring InlineQuery or a non text message sent in DM.");
+        println!("Ignoring special request sent in DM: {}", message_text);
     }
 
     // respond(()) is a shortcut for ResponseResult::Ok(()).
