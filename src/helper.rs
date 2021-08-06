@@ -158,7 +158,9 @@ fn get_each_input(
     let id = String::from(&value[i]["defid"].to_string());
 
     // Data can be cleaned up in its own function
-    text_cleanup(&mut title, &mut content, &mut example);
+    text_cleanup(&mut title);
+    text_cleanup(&mut content);
+    text_cleanup(&mut example);
 
     // Set URL for getting more information
     let ud_shortened_url = String::from(format!("urbanup.com/{}", id));
@@ -208,7 +210,9 @@ fn get_each_input_inline(
     let id = String::from(&value[i]["defid"].to_string());
 
     // Data can be cleaned up in its own function
-    text_cleanup(&mut title, &mut content, &mut example);
+    text_cleanup(&mut title);
+    text_cleanup(&mut content);
+    text_cleanup(&mut example);
 
     // Set URL for getting more information
     let ud_shortened_url = String::from(format!("urbanup.com/{}", id));

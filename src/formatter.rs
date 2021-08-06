@@ -1,4 +1,4 @@
-pub fn text_cleanup(title: &mut String, content: &mut String, example: &mut String) {
+pub fn text_cleanup(text: &mut String) {
     // Since we are displaying content separately in the inline query,
     // we have to handle it separately and not as a part of text.
     // Handling it as a part of text also wouldn't help with the individual
@@ -6,12 +6,9 @@ pub fn text_cleanup(title: &mut String, content: &mut String, example: &mut Stri
 
     // We only want to remove the first and last quotations
     // in each case.
-    *title = rem_first_and_last_char(&title).to_string();
-    *content = rem_first_and_last_char(&content).to_string();
-    *example = rem_first_and_last_char(&example).to_string();
+    *text = rem_first_and_last_char(&text).to_string();
 
-    *content = prevent_htmlisation(content.to_string());
-    *example = prevent_htmlisation(example.to_string());
+    *text = prevent_htmlisation(text.to_string());
 }
 
 fn rem_first_and_last_char(initial_string: &str) -> &str {
