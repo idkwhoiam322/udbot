@@ -10,6 +10,13 @@ use teloxide::types::{
     ParseMode,
 };
 
+/*
+ * Information about functions:
+ * get_special_request() - Gets results for /wotd and /random
+ * get_top_result() - Gets only the top result
+ * get_inline_results() - Gets all possible results for inline queries
+ */
+
 pub fn get_special_request(type_of_request: &str) -> String {
     let mut result = String::new();
 
