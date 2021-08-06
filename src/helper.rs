@@ -27,21 +27,31 @@ pub fn get_top_result(title: &str) -> String {
 
     let json_file = File::open("PMQuery.json").unwrap();
     let initial_list: serde_json::Value = serde_json::from_reader(json_file).unwrap();
-    let length = initial_list["list"].as_array().unwrap().len();
+    let length = match initial_list["list"].as_array() {
+        Some(arr) => arr.len(),
+        None => 0,
+    };
 
-    // Change required at start of file
-    let new_data = old_data.replace("{\"list\":", "");
-    // Change required at end of file
-    let new_data = new_data.replace("}]}", "}]");
-    // check if this word is present in UD library
-    let is_valid_word = new_data.chars().any(|c| matches!(c, 'a'..='z')); // returns true/false
+    let mut new_data; // modified json
+    let is_valid_word; // In case the query is invalid or does not exist in UD library
+
+    if length != 0 {
+        // Change required at start of file
+        new_data = old_data.replace("{\"list\":", "");
+        // Change required at end of file
+        new_data = new_data.replace("}]}", "}]");
+        // check if this word is present in UD library
+        is_valid_word = new_data.chars().any(|c| matches!(c, 'a'..='z')); // returns true/false
+
+        delete_file("PMQuery.json".to_string());
+        let mut destination_file = File::create("PMQuery.json").unwrap();
+        destination_file.write(new_data.as_bytes()).unwrap();
+        drop(destination_file);
+    } else {
+        is_valid_word = false;
+    }
 
     let mut result = String::new();
-    delete_file("PMQuery.json".to_string());
-    let mut destination_file = File::create("PMQuery.json").unwrap();
-    destination_file.write(new_data.as_bytes()).unwrap();
-    drop(destination_file);
-
     if is_valid_word {
         let json_file = File::open("PMQuery.json").unwrap();
         let value: serde_json::Value = serde_json::from_reader(json_file).unwrap();
