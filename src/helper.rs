@@ -203,7 +203,7 @@ fn get_each_input_fallback_inline(title: &str) -> InlineQueryResult {
                         ::new(id, title, input)
                         .description(content)
                         .reply_markup(inline_keyboard)
-        )
+                    )
 }
 
 fn get_each_input_inline(
