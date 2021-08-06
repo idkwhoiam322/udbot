@@ -56,17 +56,9 @@ pub fn get_top_result(title: &str) -> String {
         let json_file = File::open("PMQuery.json").unwrap();
         let value: serde_json::Value = serde_json::from_reader(json_file).unwrap();
 
-        result.push_str(&get_each_input(
-                        &value,
-                        0,
-                        length
-                    )
-                );
+        result.push_str(&get_each_input(&value, 0, length));
     } else {
-        result.push_str(&get_each_input_fallback(
-                    title
-                    )
-                );
+        result.push_str(&get_each_input_fallback(title));
     }
 
     result
@@ -119,18 +111,10 @@ pub fn get_inline_results(title: &str) -> Vec<InlineQueryResult> {
         let value: serde_json::Value = serde_json::from_reader(json_file).unwrap();
 
         for i in 0..length {
-            result.push(get_each_input_inline(
-                            &value,
-                            i,
-                            length
-                        )
-                    );
+            result.push(get_each_input_inline(&value, i, length));
         }
     } else {
-        result.push(get_each_input_fallback_inline(
-                    title
-                    )
-                );
+        result.push(get_each_input_fallback_inline(title));
     }
 
     result
