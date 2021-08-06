@@ -10,6 +10,68 @@ use teloxide::types::{
     ParseMode,
 };
 
+pub fn get_special_request(type_of_request: &str) -> String {
+    let mut result = String::new();
+
+    println!("Special Query of type {}:", type_of_request);
+    let mut searchurl = String::new();
+    match type_of_request {
+        "wotd" => searchurl = format!("http://api.urbandictionary.com/v0/words_of_the_day"),
+        "random" => searchurl = format!("http://api.urbandictionary.com/v0/random"),
+        _ => (), // not required
+    }
+
+    println!("{}", searchurl);
+    Command::new("bash")
+        .arg("scripts/getapidata.sh")
+        .arg("SPECIAL_QUERY.json")
+        .arg(searchurl)
+        .output()
+        .expect("Script could not be run.");
+
+    let mut source_file = File::open("SPECIAL_QUERY.json").unwrap();
+    let mut old_data = String::new();
+    source_file.read_to_string(&mut old_data).unwrap();
+    drop(source_file);
+
+    let json_file = File::open("SPECIAL_QUERY.json").unwrap();
+    let initial_list: serde_json::Value = serde_json::from_reader(json_file).unwrap();
+    let length = match initial_list["list"].as_array() {
+        Some(arr) => arr.len(),
+        None => 0,
+    };
+
+    let mut new_data; // modified json
+    let is_valid_word; // In case the query is invalid or does not exist in UD API
+
+    if length != 0 {
+        // Change required at start of file
+        new_data = old_data.replace("{\"list\":", "");
+        // Change required at end of file
+        new_data = new_data.replace("}]}", "}]");
+        // check if this word is present in UD API
+        is_valid_word = new_data.chars().any(|c| matches!(c, 'a'..='z')); // returns true/false
+
+        delete_file("SPECIAL_QUERY.json".to_string());
+        let mut destination_file = File::create("SPECIAL_QUERY.json").unwrap();
+        destination_file.write(new_data.as_bytes()).unwrap();
+        drop(destination_file);
+    } else {
+        is_valid_word = false;
+    }
+
+    if is_valid_word {
+        let json_file = File::open("SPECIAL_QUERY.json").unwrap();
+        let value: serde_json::Value = serde_json::from_reader(json_file).unwrap();
+
+        result.push_str(&get_each_input(&value, 0, length));
+    } else {
+        result.push_str("Word of the day is not available");
+    }
+
+    result
+}
+
 pub fn get_top_result(title: &str) -> String {
     print!("Top Query: ");
     let searchurl = get_searchurl(title);

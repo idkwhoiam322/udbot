@@ -5,6 +5,7 @@ mod formatter;
 use helper::{
     get_top_result,
     get_inline_results,
+    get_special_request,
 };
 use std::error::Error;
 use teloxide::{
@@ -24,6 +25,18 @@ Usage: @rsurbandictionarybot &lt;word&gt;
 Example: @rsurbandictionarybot hello\n
 Owner: @idkwhoiam322
 Source code: https://github.com/idkwhoiam322/udbot";
+
+const HELP_POST: &str = "List of available commands:
+/help - This message.
+/start - About this bot.
+/wotd or /wordoftheday - Get the word of the day.
+/random - Get a random word!
+
+Use this bot inline:
+Usage: @rsurbandictionarybot &lt;word&gt;
+Example: @rsurbandictionarybot hello
+
+Report issues to: @idkwhoiam322";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -100,14 +113,51 @@ async fn handle_message(
         }
     };
 
-    if message_text.eq("/start") || message_text.eq("/help") {
-        query
-            .answer(START_POST)
-            .parse_mode(ParseMode::Html)
-            .disable_web_page_preview(true)
-            .send()
-            .await?;
-    } else if is_text_query && !message_text.contains("ℹ️") {
+    let mut is_special_request = false;
+
+    match message_text.as_str() {
+        "/start" => {
+            is_special_request = true;
+            query
+                .answer(START_POST)
+                .parse_mode(ParseMode::Html)
+                .disable_web_page_preview(true)
+                .send()
+                .await?;
+        },
+        "/help" => {
+            is_special_request = true;
+            query
+                .answer(HELP_POST)
+                .parse_mode(ParseMode::Html)
+                .disable_web_page_preview(true)
+                .send()
+                .await?;
+        },
+        "/wotd" | "/wordoftheday" => {
+            is_special_request = true;
+            let result = get_special_request("wotd");
+            query
+                .answer(result)
+                .parse_mode(ParseMode::Html)
+                .disable_web_page_preview(true)
+                .send()
+                .await?;
+        },
+        "/random" => {
+            is_special_request = true;
+            let result = get_special_request("random");
+            query
+                .answer(result)
+                .parse_mode(ParseMode::Html)
+                .disable_web_page_preview(true)
+                .send()
+                .await?;
+        }
+        _ => (), // Handled
+    }
+
+    if is_text_query && !is_special_request && !message_text.contains("ℹ️") {
         let result = get_top_result(&message_text);
         query
             .answer(result)
