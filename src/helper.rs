@@ -78,6 +78,9 @@ pub fn get_top_result(title: &str, is_special_request: bool, user_id: i64) -> St
         result.push_str(&get_each_input_fallback(title));
     }
 
+    // Delete file after it is used
+    delete_file(file_name.clone());
+
     result
 }
 
@@ -186,6 +189,9 @@ pub fn get_inline_results(title: &str, user_id: i64, query_id: i64) -> Vec<Inlin
     } else {
         result.push(get_each_input_fallback_inline(title));
     }
+
+    // Delete file after it is used
+    delete_file(file_name.clone());
 
     result
 }
