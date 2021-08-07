@@ -104,11 +104,17 @@ async fn handle_message(
     let mut message_text = String::new();
     // Assume not a text query by default
     let mut is_text_query = false;
+    // User ID will be obtained from message
+    let mut user_id = 0;
+
     // Get message text from DM
     if let MessageKind::Common(message_kind) = &query.update.kind {
         if let MediaKind::Text(message) = &message_kind.media_kind {
             message_text = message.text.clone();
             is_text_query = true;
+        };
+        if let Some(user) = &message_kind.from {
+            user_id = user.id;
         }
     };
 
@@ -136,7 +142,7 @@ async fn handle_message(
             },
             "/wotd" | "/wordoftheday" => {
                 is_special_request = true;
-                let result = get_top_result(&message_text, is_special_request);
+                let result = get_top_result(&message_text, is_special_request, user_id);
                 query
                     .answer(result)
                     .parse_mode(ParseMode::Html)
@@ -146,7 +152,7 @@ async fn handle_message(
             },
             "/random" => {
                 is_special_request = true;
-                let result = get_top_result(&message_text, is_special_request);
+                let result = get_top_result(&message_text, is_special_request, user_id);
                 query
                     .answer(result)
                     .parse_mode(ParseMode::Html)
@@ -158,7 +164,7 @@ async fn handle_message(
         }
     
         if !is_special_request && !message_text.contains("ℹ️") {
-            let result = get_top_result(&message_text, is_special_request);
+            let result = get_top_result(&message_text, is_special_request, user_id);
             query
                 .answer(result)
                 .parse_mode(ParseMode::Html)
@@ -182,16 +188,18 @@ async fn handle_inline_query(
     query: UpdateWithCx<Bot, InlineQuery>
 ) -> ResponseResult<()> {
     let InlineQuery {
-        id, query: text, ..
+        id, query: text, from, ..
     } = query.update;
+
+    let user_id = from.id;
+    let query_id = id.parse().unwrap_or(0);
 
     if text.is_empty() {
         return respond(());
     }
-
     println!("{:?}", text);
 
-    let results = get_inline_results(&text);
+    let results = get_inline_results(&text, user_id, query_id);
     query
         .requester
         .answer_inline_query(id, results)

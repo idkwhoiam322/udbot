@@ -16,7 +16,8 @@ use teloxide::types::{
  * get_inline_results() - Gets all possible results for inline queries
  */
 
-pub fn get_top_result(title: &str, is_special_request: bool) -> String {
+pub fn get_top_result(title: &str, is_special_request: bool, user_id: i64) -> String {
+    let file_name = format!("PMQuery_{}.json", user_id);
     if is_special_request {
         println!("Special Query of type {}:", title);
     } else {
@@ -31,17 +32,17 @@ pub fn get_top_result(title: &str, is_special_request: bool) -> String {
 
     Command::new("bash")
         .arg("scripts/getapidata.sh")
-        .arg("PMQuery.json")
+        .arg(file_name.clone())
         .arg(searchurl)
         .output()
         .expect("Script could not be run.");
 
-    let mut source_file = File::open("PMQuery.json").unwrap();
+    let mut source_file = File::open(file_name.clone()).unwrap();
     let mut old_data = String::new();
     source_file.read_to_string(&mut old_data).unwrap();
     drop(source_file);
 
-    let json_file = File::open("PMQuery.json").unwrap();
+    let json_file = File::open(file_name.clone()).unwrap();
     let initial_list: serde_json::Value = serde_json::from_reader(json_file).unwrap();
     let length = match initial_list["list"].as_array() {
         Some(arr) => arr.len(),
@@ -59,8 +60,8 @@ pub fn get_top_result(title: &str, is_special_request: bool) -> String {
         // check if this word is present in UD API
         is_valid_word = new_data.chars().any(|c| matches!(c, 'a'..='z')); // returns true/false
 
-        delete_file("PMQuery.json".to_string());
-        let mut destination_file = File::create("PMQuery.json").unwrap();
+        delete_file(file_name.clone());
+        let mut destination_file = File::create(file_name.clone()).unwrap();
         destination_file.write(new_data.as_bytes()).unwrap();
         drop(destination_file);
     } else {
@@ -69,7 +70,7 @@ pub fn get_top_result(title: &str, is_special_request: bool) -> String {
 
     let mut result = String::new();
     if is_valid_word {
-        let json_file = File::open("PMQuery.json").unwrap();
+        let json_file = File::open(file_name.clone()).unwrap();
         let value: serde_json::Value = serde_json::from_reader(json_file).unwrap();
 
         result.push_str(&get_each_input(&value, 0, length, is_special_request));
@@ -132,22 +133,23 @@ fn get_each_input(
     text
 }
 
-pub fn get_inline_results(title: &str) -> Vec<InlineQueryResult> {
+pub fn get_inline_results(title: &str, user_id: i64, query_id: i64) -> Vec<InlineQueryResult> {
+    let file_name = format!("InlineQuery_{}_{}.json", user_id, query_id);
     print!("Inline Query: ");
     let searchurl = get_searchurl(title);
     Command::new("bash")
         .arg("scripts/getapidata.sh")
-        .arg("InlineQuery.json")
+        .arg(file_name.clone())
         .arg(searchurl)
         .output()
         .expect("Script could not be run.");
 
-    let mut source_file = File::open("InlineQuery.json").unwrap();
+    let mut source_file = File::open(file_name.clone()).unwrap();
     let mut old_data = String::new();
     source_file.read_to_string(&mut old_data).unwrap();
     drop(source_file);
 
-    let json_file = File::open("InlineQuery.json").unwrap();
+    let json_file = File::open(file_name.clone()).unwrap();
     let initial_list: serde_json::Value = serde_json::from_reader(json_file).unwrap();
     let length = match initial_list["list"].as_array() {
         Some(arr) => arr.len(),
@@ -165,8 +167,8 @@ pub fn get_inline_results(title: &str) -> Vec<InlineQueryResult> {
         // check if this word is present in UD API
         is_valid_word = new_data.chars().any(|c| matches!(c, 'a'..='z')); // returns true/false
 
-        delete_file("InlineQuery.json".to_string());
-        let mut destination_file = File::create("InlineQuery.json").unwrap();
+        delete_file(file_name.clone());
+        let mut destination_file = File::create(file_name.clone()).unwrap();
         destination_file.write(new_data.as_bytes()).unwrap();
         drop(destination_file);
     } else {
@@ -175,7 +177,7 @@ pub fn get_inline_results(title: &str) -> Vec<InlineQueryResult> {
 
     let mut result: Vec<InlineQueryResult> = Vec::new();
     if is_valid_word {
-        let json_file = File::open("InlineQuery.json").unwrap();
+        let json_file = File::open(file_name.clone()).unwrap();
         let value: serde_json::Value = serde_json::from_reader(json_file).unwrap();
 
         for i in 0..length {
