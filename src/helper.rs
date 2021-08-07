@@ -80,6 +80,58 @@ pub fn get_top_result(title: &str, is_special_request: bool) -> String {
     result
 }
 
+fn get_each_input_fallback(title: &str) -> String {
+    let content = String::from("This word was not found in UD API.".to_string());
+
+    let mut text = format!("ℹ️ <b>Definition of {}:</b>\n{}", title, content);
+
+    let ud_url = String::from(format!("https://www.urbandictionary.com/define.php?term={}", title));
+
+    text.push_str(format!("\n\n<a href='{}'>Search urbandictionary.com</a>", ud_url).as_str());
+
+    text
+}
+
+fn get_each_input(
+    value: &serde_json::Value,
+    i: usize,
+    _total: usize,
+    is_special_request: bool
+) -> String {
+    let mut title = String::from(&value[i]["word"].to_string());
+    let mut content = String::from(&value[i]["definition"].to_string());
+    let mut example = String::from(&value[i]["example"].to_string());
+
+    // Data can be cleaned up in its own function
+    text_cleanup(&mut title);
+    text_cleanup(&mut content);
+    text_cleanup(&mut example);
+
+    // Set URL for getting more information
+    let ud_url = String::from(format!("https://www.urbandictionary.com/define.php?term={}", title));
+
+    // This is the final text output sent as a message
+    let mut text = String::new();
+
+    if !is_special_request {
+        text.push_str(format!("<b>Top Result:</b>\n").as_str());
+    }
+
+    text.push_str(format!("ℹ️ <b>Definition of {}:</b>\n{}", title, content).as_str());
+
+    // Append examples if ( and only if ) there are any
+    if example.ne("") {
+        text.push_str(format!("\n\n📝 <b>Examples:</b>\n<i>{}</i>", example).as_str());
+    }
+
+    // Append source
+    text.push_str(format!("\n\n<a href='{}'>Source (Urban Dictionary)</a>", ud_url).as_str());
+
+    text.push_str(format!("\n\nTo get more results, use the inline query method. See /help for more info.").as_str());
+
+    text
+}
+
 pub fn get_inline_results(title: &str) -> Vec<InlineQueryResult> {
     print!("Inline Query: ");
     let searchurl = get_searchurl(title);
@@ -134,71 +186,6 @@ pub fn get_inline_results(title: &str) -> Vec<InlineQueryResult> {
     }
 
     result
-}
-
-fn get_searchurl(title: &str) -> String {
-    let searchurl;
-    if title.contains(" ") {
-        // Handle multiple words
-        let modified_search_query = title.replace(" ", "%20");
-        searchurl = format!("https://api.urbandictionary.com/v0/define?term=\"{}\"", modified_search_query);
-    } else {
-        searchurl = format!("https://api.urbandictionary.com/v0/define?term={}", title);
-    }
-    println!("{}", searchurl);
-    searchurl
-}
-
-fn get_each_input_fallback(title: &str) -> String {
-    let content = String::from("This word was not found in UD API.".to_string());
-
-    let mut text = format!("ℹ️ <b>Definition of {}:</b>\n{}", title, content);
-
-    let ud_url = String::from(format!("https://www.urbandictionary.com/define.php?term={}", title));
-
-    text.push_str(format!("\n\n<a href='{}'>Search urbandictionary.com</a>", ud_url).as_str());
-
-    text
-}
-
-fn get_each_input(
-    value: &serde_json::Value,
-    i: usize,
-    _total: usize,
-    is_special_request: bool
-) -> String {
-    let mut title = String::from(&value[i]["word"].to_string());
-    let mut content = String::from(&value[i]["definition"].to_string());
-    let mut example = String::from(&value[i]["example"].to_string());
-
-    // Data can be cleaned up in its own function
-    text_cleanup(&mut title);
-    text_cleanup(&mut content);
-    text_cleanup(&mut example);
-
-    // Set URL for getting more information
-    let ud_url = String::from(format!("https://www.urbandictionary.com/define.php?term={}", title));
-
-    // This is the final text output sent as a message
-    let mut text = String::new();
-
-    if !is_special_request {
-        text.push_str(format!("<b>Top Result:</b>\n").as_str());
-    }
-
-    text.push_str(format!("ℹ️ <b>Definition of {}:</b>\n{}", title, content).as_str());
-
-    // Append examples if ( and only if ) there are any
-    if example.ne("") {
-        text.push_str(format!("\n\n📝 <b>Examples:</b>\n<i>{}</i>", example).as_str());
-    }
-
-    // Append source
-    text.push_str(format!("\n\n<a href='{}'>Source (Urban Dictionary)</a>", ud_url).as_str());
-
-    text.push_str(format!("\n\nTo get more results, use the inline query method. See /help for more info.").as_str());
-
-    text
 }
 
 fn get_each_input_fallback_inline(title: &str) -> InlineQueryResult {
@@ -276,4 +263,17 @@ fn get_each_input_inline(
                         .description(content)
                         .reply_markup(inline_keyboard)
                     )
+}
+
+fn get_searchurl(title: &str) -> String {
+    let searchurl;
+    if title.contains(" ") {
+        // Handle multiple words
+        let modified_search_query = title.replace(" ", "%20");
+        searchurl = format!("https://api.urbandictionary.com/v0/define?term=\"{}\"", modified_search_query);
+    } else {
+        searchurl = format!("https://api.urbandictionary.com/v0/define?term={}", title);
+    }
+    println!("{}", searchurl);
+    searchurl
 }
