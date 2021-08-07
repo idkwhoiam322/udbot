@@ -12,76 +12,23 @@ use teloxide::types::{
 
 /*
  * Information about functions:
- * get_special_request() - Gets results for /wotd and /random
  * get_top_result() - Gets only the top result
  * get_inline_results() - Gets all possible results for inline queries
  */
 
-pub fn get_special_request(type_of_request: &str) -> String {
-    let mut result = String::new();
-
-    println!("Special Query of type {}:", type_of_request);
-    let mut searchurl = String::new();
-    match type_of_request {
-        "wotd" => searchurl = format!("http://api.urbandictionary.com/v0/words_of_the_day"),
-        "random" => searchurl = format!("http://api.urbandictionary.com/v0/random"),
-        _ => (), // not required
-    }
-
-    println!("{}", searchurl);
-    Command::new("bash")
-        .arg("scripts/getapidata.sh")
-        .arg("SPECIAL_QUERY.json")
-        .arg(searchurl)
-        .output()
-        .expect("Script could not be run.");
-
-    let mut source_file = File::open("SPECIAL_QUERY.json").unwrap();
-    let mut old_data = String::new();
-    source_file.read_to_string(&mut old_data).unwrap();
-    drop(source_file);
-
-    let json_file = File::open("SPECIAL_QUERY.json").unwrap();
-    let initial_list: serde_json::Value = serde_json::from_reader(json_file).unwrap();
-    let length = match initial_list["list"].as_array() {
-        Some(arr) => arr.len(),
-        None => 0,
-    };
-
-    let mut new_data; // modified json
-    let is_valid_word; // In case the query is invalid or does not exist in UD API
-
-    if length != 0 {
-        // Change required at start of file
-        new_data = old_data.replace("{\"list\":", "");
-        // Change required at end of file
-        new_data = new_data.replace("}]}", "}]");
-        // check if this word is present in UD API
-        is_valid_word = new_data.chars().any(|c| matches!(c, 'a'..='z')); // returns true/false
-
-        delete_file("SPECIAL_QUERY.json".to_string());
-        let mut destination_file = File::create("SPECIAL_QUERY.json").unwrap();
-        destination_file.write(new_data.as_bytes()).unwrap();
-        drop(destination_file);
+pub fn get_top_result(title: &str, is_special_request: bool) -> String {
+    if is_special_request {
+        println!("Special Query of type {}:", title);
     } else {
-        is_valid_word = false;
+        print!("Top Query: ");
     }
 
-    if is_valid_word {
-        let json_file = File::open("SPECIAL_QUERY.json").unwrap();
-        let value: serde_json::Value = serde_json::from_reader(json_file).unwrap();
+    let searchurl = match title {
+                        "/wotd" | "/wordoftheday" => format!("http://api.urbandictionary.com/v0/words_of_the_day"),
+                        "/random" => format!("http://api.urbandictionary.com/v0/random"),
+                        _ => get_searchurl(title),
+                    };
 
-        result.push_str(&get_each_input(&value, 0, length));
-    } else {
-        result.push_str("Word of the day is not available");
-    }
-
-    result
-}
-
-pub fn get_top_result(title: &str) -> String {
-    print!("Top Query: ");
-    let searchurl = get_searchurl(title);
     Command::new("bash")
         .arg("scripts/getapidata.sh")
         .arg("PMQuery.json")
@@ -125,7 +72,7 @@ pub fn get_top_result(title: &str) -> String {
         let json_file = File::open("PMQuery.json").unwrap();
         let value: serde_json::Value = serde_json::from_reader(json_file).unwrap();
 
-        result.push_str(&get_each_input(&value, 0, length));
+        result.push_str(&get_each_input(&value, 0, length, is_special_request));
     } else {
         result.push_str(&get_each_input_fallback(title));
     }
@@ -217,7 +164,8 @@ fn get_each_input_fallback(title: &str) -> String {
 fn get_each_input(
     value: &serde_json::Value,
     i: usize,
-    _total: usize
+    _total: usize,
+    is_special_request: bool
 ) -> String {
     let mut title = String::from(&value[i]["word"].to_string());
     let mut content = String::from(&value[i]["definition"].to_string());
@@ -232,7 +180,13 @@ fn get_each_input(
     let ud_url = String::from(format!("https://www.urbandictionary.com/define.php?term={}", title));
 
     // This is the final text output sent as a message
-    let mut text = format!("<b>Top Result:</b>\nℹ️ <b>Definition of {}:</b>\n{}", title, content);
+    let mut text = String::new();
+
+    if !is_special_request {
+        text.push_str(format!("<b>Top Result:</b>\n").as_str());
+    }
+
+    text.push_str(format!("ℹ️ <b>Definition of {}:</b>\n{}", title, content).as_str());
 
     // Append examples if ( and only if ) there are any
     if example.ne("") {

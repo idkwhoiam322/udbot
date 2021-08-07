@@ -5,7 +5,6 @@ mod formatter;
 use helper::{
     get_top_result,
     get_inline_results,
-    get_special_request,
 };
 use std::error::Error;
 use teloxide::{
@@ -136,7 +135,7 @@ async fn handle_message(
         },
         "/wotd" | "/wordoftheday" => {
             is_special_request = true;
-            let result = get_special_request("wotd");
+            let result = get_top_result(&message_text, is_special_request);
             query
                 .answer(result)
                 .parse_mode(ParseMode::Html)
@@ -146,7 +145,7 @@ async fn handle_message(
         },
         "/random" => {
             is_special_request = true;
-            let result = get_special_request("random");
+            let result = get_top_result(&message_text, is_special_request);
             query
                 .answer(result)
                 .parse_mode(ParseMode::Html)
@@ -158,7 +157,7 @@ async fn handle_message(
     }
 
     if is_text_query && !is_special_request && !message_text.contains("ℹ️") {
-        let result = get_top_result(&message_text);
+        let result = get_top_result(&message_text, is_special_request);
         query
             .answer(result)
             .parse_mode(ParseMode::Html)
