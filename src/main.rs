@@ -114,60 +114,64 @@ async fn handle_message(
 
     let mut is_special_request = false;
 
-    match message_text.as_str() {
-        "/start" => {
-            is_special_request = true;
-            query
-                .answer(START_POST)
-                .parse_mode(ParseMode::Html)
-                .disable_web_page_preview(true)
-                .send()
-                .await?;
-        },
-        "/help" => {
-            is_special_request = true;
-            query
-                .answer(HELP_POST)
-                .parse_mode(ParseMode::Html)
-                .disable_web_page_preview(true)
-                .send()
-                .await?;
-        },
-        "/wotd" | "/wordoftheday" => {
-            is_special_request = true;
-            let result = get_top_result(&message_text, is_special_request);
-            query
-                .answer(result)
-                .parse_mode(ParseMode::Html)
-                .disable_web_page_preview(true)
-                .send()
-                .await?;
-        },
-        "/random" => {
-            is_special_request = true;
-            let result = get_top_result(&message_text, is_special_request);
-            query
-                .answer(result)
-                .parse_mode(ParseMode::Html)
-                .disable_web_page_preview(true)
-                .send()
-                .await?;
+    if is_text_query {
+        match message_text.as_str() {
+            "/start" => {
+                is_special_request = true;
+                query
+                    .answer(START_POST)
+                    .parse_mode(ParseMode::Html)
+                    .disable_web_page_preview(true)
+                    .send()
+                    .await?;
+            },
+            "/help" => {
+                is_special_request = true;
+                query
+                    .answer(HELP_POST)
+                    .parse_mode(ParseMode::Html)
+                    .disable_web_page_preview(true)
+                    .send()
+                    .await?;
+            },
+            "/wotd" | "/wordoftheday" => {
+                is_special_request = true;
+                let result = get_top_result(&message_text, is_special_request);
+                query
+                    .answer(result)
+                    .parse_mode(ParseMode::Html)
+                    .disable_web_page_preview(true)
+                    .send()
+                    .await?;
+            },
+            "/random" => {
+                is_special_request = true;
+                let result = get_top_result(&message_text, is_special_request);
+                query
+                    .answer(result)
+                    .parse_mode(ParseMode::Html)
+                    .disable_web_page_preview(true)
+                    .send()
+                    .await?;
+            }
+            _ => (), // Handled
         }
-        _ => (), // Handled
-    }
-
-    if is_text_query && !is_special_request && !message_text.contains("ℹ️") {
-        let result = get_top_result(&message_text, is_special_request);
-        query
-            .answer(result)
-            .parse_mode(ParseMode::Html)
-            .disable_web_page_preview(true)
-            .send()
-            .await?;
-    } else if message_text.contains("ℹ️") {
-        println!("Ignoring InlineQuery sent in DM.");
+    
+        if !is_special_request && !message_text.contains("ℹ️") {
+            let result = get_top_result(&message_text, is_special_request);
+            query
+                .answer(result)
+                .parse_mode(ParseMode::Html)
+                .disable_web_page_preview(true)
+                .send()
+                .await?;
+        } else if message_text.contains("ℹ️") {
+            println!("Ignoring InlineQuery sent in DM.");
+        } else {
+            println!("Ignoring special request sent in DM: {}", message_text);
+        }
     } else {
-        println!("Ignoring special request sent in DM: {}", message_text);
+        println!("Ignoring non text request sent in DM.");
     }
 
     // respond(()) is a shortcut for ResponseResult::Ok(()).
