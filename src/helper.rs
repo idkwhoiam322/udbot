@@ -195,10 +195,11 @@ pub fn get_inline_results(title: &str, user_id: i64, query_id: i64) -> Vec<Inlin
 }
 
 fn get_each_input_fallback_inline(title: &str) -> InlineQueryResult {
-    let content = String::from("This word was not found in UD API.".to_string());
+    let mut content = String::from("This word was not found in UD API.".to_string());
     let id = String::from("-1".to_string());
 
     let text = format!("ℹ️ <b>Definition of {}:</b>\n{}", title, content);
+    content.push_str("\n\nClick here for an option to search anyways.");
 
     let input = InputMessageContent::Text(
                     InputMessageContentText::new(text.to_owned())
