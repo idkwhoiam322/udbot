@@ -174,7 +174,6 @@ async fn handle_inline_query(
     if text.is_empty() {
         return respond(());
     }
-    println!("{:?}", text);
 
     let results = get_inline_results(&text, user_id, query_id);
     query
