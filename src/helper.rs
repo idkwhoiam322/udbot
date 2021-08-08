@@ -16,19 +16,16 @@ use teloxide::types::{
  * get_inline_results() - Gets all possible results for inline queries
  */
 
-pub fn get_top_result(title: &str, is_special_request: bool, user_id: i64) -> String {
+pub fn get_top_result(title: &str, user_id: i64) -> String {
     let file_name = format!("PMQuery_{}.json", user_id);
-    if is_special_request {
-        println!("Special Query of type {}:", title);
-    } else {
-        print!("Top Query: ");
-    }
 
     let searchurl = match title {
                         "/wotd" | "/wordoftheday" => format!("http://api.urbandictionary.com/v0/words_of_the_day"),
                         "/random" => format!("http://api.urbandictionary.com/v0/random"),
                         _ => get_searchurl(title),
                     };
+
+    println!("Query: {}", title);
 
     Command::new("bash")
         .arg("scripts/getapidata.sh")
@@ -73,7 +70,7 @@ pub fn get_top_result(title: &str, is_special_request: bool, user_id: i64) -> St
         let json_file = File::open(file_name.clone()).unwrap();
         let value: serde_json::Value = serde_json::from_reader(json_file).unwrap();
 
-        result.push_str(&get_each_input(&value, 0, length, is_special_request));
+        result.push_str(&get_each_input(&value, 0, length));
     } else {
         result.push_str(&get_each_input_fallback(title));
     }
@@ -99,8 +96,7 @@ fn get_each_input_fallback(title: &str) -> String {
 fn get_each_input(
     value: &serde_json::Value,
     i: usize,
-    _total: usize,
-    is_special_request: bool
+    _total: usize
 ) -> String {
     let mut title = String::from(&value[i]["word"].to_string());
     let mut content = String::from(&value[i]["definition"].to_string());
@@ -116,10 +112,6 @@ fn get_each_input(
 
     // This is the final text output sent as a message
     let mut text = String::new();
-
-    if !is_special_request {
-        text.push_str(format!("<b>Top Result:</b>\n").as_str());
-    }
 
     text.push_str(format!("ℹ️ <b>Definition of {}:</b>\n{}", title, content).as_str());
 

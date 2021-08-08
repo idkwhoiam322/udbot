@@ -118,63 +118,40 @@ async fn handle_message(
         }
     };
 
-    let mut is_special_request = false;
-
     if is_text_query {
+        let mut result = String::new();
+
         match message_text.as_str() {
             "/start" => {
-                is_special_request = true;
-                query
-                    .answer(START_POST)
-                    .parse_mode(ParseMode::Html)
-                    .disable_web_page_preview(true)
-                    .send()
-                    .await?;
+                result = START_POST.to_string();
             },
             "/help" => {
-                is_special_request = true;
-                query
-                    .answer(HELP_POST)
-                    .parse_mode(ParseMode::Html)
-                    .disable_web_page_preview(true)
-                    .send()
-                    .await?;
+                result = HELP_POST.to_string();
             },
             "/wotd" | "/wordoftheday" => {
-                is_special_request = true;
-                let result = get_top_result(&message_text, is_special_request, user_id);
-                query
-                    .answer(result)
-                    .parse_mode(ParseMode::Html)
-                    .disable_web_page_preview(true)
-                    .send()
-                    .await?;
+                result = get_top_result(&message_text, user_id);
             },
             "/random" => {
-                is_special_request = true;
-                let result = get_top_result(&message_text, is_special_request, user_id);
-                query
-                    .answer(result)
-                    .parse_mode(ParseMode::Html)
-                    .disable_web_page_preview(true)
-                    .send()
-                    .await?;
+                result = get_top_result(&message_text, user_id);
             }
-            _ => (), // Handled
+            _ => {
+                if !message_text.contains("ℹ️") {
+                    result = get_top_result(&message_text, user_id);
+                } else if message_text.contains("ℹ️") {
+                    println!("Ignoring InlineQuery sent in DM.");
+                } else {
+                    println!("Ignoring special request sent in DM: {}", message_text);
+                }
+            }
         }
-    
-        if !is_special_request && !message_text.contains("ℹ️") {
-            let result = get_top_result(&message_text, is_special_request, user_id);
+
+        if result.ne("") {
             query
                 .answer(result)
                 .parse_mode(ParseMode::Html)
                 .disable_web_page_preview(true)
                 .send()
                 .await?;
-        } else if message_text.contains("ℹ️") {
-            println!("Ignoring InlineQuery sent in DM.");
-        } else {
-            println!("Ignoring special request sent in DM: {}", message_text);
         }
     } else {
         println!("Ignoring non text request sent in DM.");
