@@ -25,7 +25,7 @@ pub fn get_top_result(title: &str, user_id: i64) -> String {
                         _ => get_searchurl(title),
                     };
 
-    println!("Query: {}", title);
+    log::info!("Query: {}", title);
 
     Command::new("bash")
         .arg("scripts/getapidata.sh")
@@ -43,7 +43,10 @@ pub fn get_top_result(title: &str, user_id: i64) -> String {
     let initial_list: serde_json::Value = serde_json::from_reader(json_file).unwrap();
     let length = match initial_list["list"].as_array() {
         Some(arr) => arr.len(),
-        None => 0,
+        None => {
+            log::debug!("{} could not get a list from {}", file_name.clone(), get_searchurl(title));
+            0
+        }
     };
 
     let mut new_data; // modified json
@@ -130,7 +133,7 @@ fn get_each_input(
 
 pub fn get_inline_results(title: &str, user_id: i64, query_id: i64) -> Vec<InlineQueryResult> {
     let file_name = format!("InlineQuery_{}_{}.json", user_id, query_id);
-    println!("Inline Query: {}", title);
+    log::info!("Inline Query: {}", title);
     let searchurl = get_searchurl(title);
     Command::new("bash")
         .arg("scripts/getapidata.sh")
@@ -148,7 +151,10 @@ pub fn get_inline_results(title: &str, user_id: i64, query_id: i64) -> Vec<Inlin
     let initial_list: serde_json::Value = serde_json::from_reader(json_file).unwrap();
     let length = match initial_list["list"].as_array() {
         Some(arr) => arr.len(),
-        None => 0,
+        None => {
+            log::debug!("{} could not get a list from {}", file_name.clone(), get_searchurl(title));
+            0
+        }
     };
 
     let mut new_data; // modified json
@@ -274,6 +280,6 @@ fn get_searchurl(title: &str) -> String {
     } else {
         searchurl = format!("https://api.urbandictionary.com/v0/define?term={}", title);
     }
-    println!("{}", searchurl);
+    log::info!("{}", searchurl);
     searchurl
 }

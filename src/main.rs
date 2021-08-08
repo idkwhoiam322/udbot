@@ -138,9 +138,9 @@ async fn handle_message(
                 if !message_text.contains("ℹ️") {
                     result = get_top_result(&message_text, user_id);
                 } else if message_text.contains("ℹ️") {
-                    println!("Ignoring InlineQuery sent in DM.");
+                    log::info!("Ignoring InlineQuery sent in DM.");
                 } else {
-                    println!("Ignoring special request sent in DM: {}", message_text);
+                    log::info!("Ignoring special request sent in DM: {}", message_text);
                 }
             }
         }
@@ -154,7 +154,7 @@ async fn handle_message(
                 .await?;
         }
     } else {
-        println!("Ignoring non text request sent in DM.");
+        log::info!("Ignoring non text request sent in DM.");
     }
 
     // respond(()) is a shortcut for ResponseResult::Ok(()).
