@@ -42,12 +42,12 @@ pub fn get_top_result(title: &str, user_id: i64) -> String {
     let json_file = File::open(file_name.clone()).unwrap();
     let initial_list: serde_json::Value = serde_json::from_reader(json_file).unwrap();
     let length = match initial_list["list"].as_array() {
-        Some(arr) => arr.len(),
-        None => {
-            log::debug!("{} could not get a list from {}", file_name.clone(), get_searchurl(title));
-            0
-        }
-    };
+                        Some(arr) => arr.len(),
+                        None => {
+                            log::debug!("{} could not get a list from {}", file_name.clone(), get_searchurl(title));
+                            0
+                        }
+                    };
 
     let mut new_data; // modified json
     let is_valid_word; // In case the query is invalid or does not exist in UD API
@@ -150,12 +150,12 @@ pub fn get_inline_results(title: &str, user_id: i64, query_id: i64) -> Vec<Inlin
     let json_file = File::open(file_name.clone()).unwrap();
     let initial_list: serde_json::Value = serde_json::from_reader(json_file).unwrap();
     let length = match initial_list["list"].as_array() {
-        Some(arr) => arr.len(),
-        None => {
-            log::debug!("{} could not get a list from {}", file_name.clone(), get_searchurl(title));
-            0
-        }
-    };
+                        Some(arr) => arr.len(),
+                        None => {
+                            log::debug!("{} could not get a list from {}", file_name.clone(), get_searchurl(title));
+                            0
+                        }
+                    };
 
     let mut new_data; // modified json
     let is_valid_word; // In case the query is invalid or does not exist in UD API
@@ -208,18 +208,19 @@ fn get_each_input_fallback_inline(title: &str) -> InlineQueryResult {
 
     let ud_url = String::from(format!("https://www.urbandictionary.com/define.php?term={}", title));
 
-    let buttons = vec![InlineKeyboardButton::url(
-                    "Search urbandictionary.com".to_string(),
-                        ud_url)];
+    let buttons = vec![
+                    InlineKeyboardButton::url(
+                        "Search urbandictionary.com".to_string(), ud_url)
+                    ];
 
     let inline_keyboard = InlineKeyboardMarkup::default()
                             .append_row(buttons);
 
     InlineQueryResult::Article(InlineQueryResultArticle
-                        ::new(id, title, input)
-                        .description(content)
-                        .reply_markup(inline_keyboard)
-                    )
+                                    ::new(id, title, input)
+                                    .description(content)
+                                    .reply_markup(inline_keyboard)
+                            )
 }
 
 fn get_each_input_inline(
@@ -255,9 +256,10 @@ fn get_each_input_inline(
                     .disable_web_page_preview(true)
                     );
 
-    let buttons = vec![InlineKeyboardButton::url(
-                    "More Information (Urban Dictionary)".to_string(),
-                        ud_url)];
+    let buttons = vec![
+                    InlineKeyboardButton::url(
+                        "More Information (Urban Dictionary)".to_string(), ud_url)
+                    ];
 
     let inline_keyboard = InlineKeyboardMarkup::default()
                             .append_row(buttons);
@@ -265,10 +267,10 @@ fn get_each_input_inline(
     // .description() is what shows in inline request options
     // Keep it same as content so user is not misled.
     InlineQueryResult::Article(InlineQueryResultArticle
-                        ::new(id, title, input)
-                        .description(content)
-                        .reply_markup(inline_keyboard)
-                    )
+                                    ::new(id, title, input)
+                                    .description(content)
+                                    .reply_markup(inline_keyboard)
+                            )
 }
 
 fn get_searchurl(title: &str) -> String {
