@@ -2,7 +2,7 @@ use crate::file_handling::functions::*;
 use crate::formatter::text_cleanup;
 use std::fs::File;
 use std::io::{Read, Write};
-use std::process::Command;
+use curl::easy::Easy;
 use teloxide::types::{
     InlineQueryResult, InlineQueryResultArticle,
     InputMessageContent, InputMessageContentText,
@@ -27,12 +27,22 @@ pub fn get_top_result(title: &str, user_id: i64) -> String {
 
     log::info!("Query: {}", title);
 
-    Command::new("bash")
-        .arg("scripts/getapidata.sh")
-        .arg(file_name.clone())
-        .arg(searchurl)
-        .output()
-        .expect("Script could not be run.");
+    let mut temp_data = Vec::new();
+    let mut easy = Easy::new();
+    easy.url(searchurl.as_str()).unwrap();
+    let mut transfer = easy.transfer();
+    transfer.write_function(|data| {
+        temp_data.extend_from_slice(data);
+        let api_data = match std::str::from_utf8(&temp_data) {
+            Ok(value) => value,
+            Err(_) => "",
+        };
+        delete_file(file_name.clone());
+        create_file(file_name.clone());
+        write_to_file(file_name.clone(), api_data);
+        Ok(data.len())
+    }).unwrap();
+    transfer.perform().unwrap();
 
     let mut source_file = File::open(file_name.clone()).unwrap();
     let mut old_data = String::new();
@@ -136,12 +146,23 @@ pub fn get_inline_results(title: &str, user_id: i64, query_id: i64) -> Vec<Inlin
     let file_name = format!("InlineQuery_{}_{}.json", user_id, query_id);
     log::info!("Inline Query: {}", title);
     let searchurl = get_searchurl(title);
-    Command::new("bash")
-        .arg("scripts/getapidata.sh")
-        .arg(file_name.clone())
-        .arg(searchurl)
-        .output()
-        .expect("Script could not be run.");
+
+    let mut temp_data = Vec::new();
+    let mut easy = Easy::new();
+    easy.url(searchurl.as_str()).unwrap();
+    let mut transfer = easy.transfer();
+    transfer.write_function(|data| {
+        temp_data.extend_from_slice(data);
+        let api_data = match std::str::from_utf8(&temp_data) {
+            Ok(value) => value,
+            Err(_) => "",
+        };
+        delete_file(file_name.clone());
+        create_file(file_name.clone());
+        write_to_file(file_name.clone(), api_data);
+        Ok(data.len())
+    }).unwrap();
+    transfer.perform().unwrap();
 
     let mut source_file = File::open(file_name.clone()).unwrap();
     let mut old_data = String::new();
