@@ -144,8 +144,9 @@ fn get_each_input(
 
 pub fn get_inline_results(title: &str, user_id: i64, query_id: i64) -> Vec<InlineQueryResult> {
     let file_name = format!("InlineQuery_{}_{}.json", user_id, query_id);
-    log::info!("Inline Query: {}", title);
     let searchurl = get_searchurl(title);
+
+    log::info!("Inline Query: {}", title);
 
     let mut temp_data = Vec::new();
     let mut easy = Easy::new();
