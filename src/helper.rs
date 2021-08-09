@@ -104,6 +104,7 @@ fn get_each_input(
     let mut title = String::from(&value[i]["word"].to_string());
     let mut content = String::from(&value[i]["definition"].to_string());
     let mut example = String::from(&value[i]["example"].to_string());
+    let id = String::from(&value[i]["defid"].to_string());
 
     // Data can be cleaned up in its own function
     text_cleanup(&mut title);
@@ -111,7 +112,7 @@ fn get_each_input(
     text_cleanup(&mut example);
 
     // Set URL for getting more information
-    let ud_url = String::from(format!("https://www.urbandictionary.com/define.php?term={}", title));
+    let ud_shortened_url = String::from(format!("urbanup.com/{}", id));
 
     // This is the final text output sent as a message
     let mut text = String::new();
@@ -124,7 +125,7 @@ fn get_each_input(
     }
 
     // Append source
-    text.push_str(format!("\n\n<a href='{}'>Source (Urban Dictionary)</a>", ud_url).as_str());
+    text.push_str(format!("\n\n<a href='{}'>Source (Urban Dictionary)</a>", ud_shortened_url).as_str());
 
     text.push_str(format!("\n\nTo get more results, use the inline query method. See /help for more info.").as_str());
 
@@ -240,7 +241,7 @@ fn get_each_input_inline(
     text_cleanup(&mut example);
 
     // Set URL for getting more information
-    let ud_url = String::from(format!("https://www.urbandictionary.com/define.php?term={}", title));
+    let ud_shortened_url = String::from(format!("urbanup.com/{}", id));
 
     // This is the final text output sent as a message
     let mut text = format!("ℹ️ <b>Definition of {}:</b>\n{}", title, content);
@@ -259,7 +260,7 @@ fn get_each_input_inline(
 
     let buttons = vec![
                     InlineKeyboardButton::url(
-                        "More Information (Urban Dictionary)".to_string(), ud_url)
+                        "More Information (Urban Dictionary)".to_string(), ud_shortened_url)
                     ];
 
     let inline_keyboard = InlineKeyboardMarkup::default()
