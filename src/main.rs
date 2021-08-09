@@ -64,6 +64,7 @@ async fn run() -> Result<(), Box<dyn Error>> {
         .expect("Message could not be sent");
 
     logger::run(&tg_bot, chat_id).await;
+    log::info!("Logging completed. Queries will now be accepted.");
 
     Dispatcher::new(tg_bot)
         .messages_handler(|rx: DispatcherHandlerRx<Bot, Message>| {
