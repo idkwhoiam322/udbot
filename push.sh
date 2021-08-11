@@ -2,7 +2,6 @@
 
 mkdir ../app
 cp target/release/udbot ../app
-cp scripts/logger.sh ../app
 cp heroku.yml ../app
 cp Dockerfile ../app
 cd ../app
