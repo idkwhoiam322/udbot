@@ -17,7 +17,7 @@ use teloxide::types::{
  */
 
 pub fn get_top_result(title: &str, user_id: i64) -> String {
-    let file_name = format!("PMQuery_{}.json", user_id);
+    let file_name = &format!("PMQuery_{}.json", user_id)[..];
 
     let searchurl = match title {
                         "/wotd" | "/wordoftheday" => format!("http://api.urbandictionary.com/v0/words_of_the_day"),
@@ -37,24 +37,24 @@ pub fn get_top_result(title: &str, user_id: i64) -> String {
             Ok(value) => value,
             Err(_) => "",
         };
-        delete_file(file_name.clone());
-        create_file(file_name.clone());
-        write_to_file(file_name.clone(), api_data);
+        delete_file(file_name);
+        create_file(file_name);
+        write_to_file(file_name, api_data);
         Ok(data.len())
     }).unwrap();
     transfer.perform().unwrap();
 
-    let mut source_file = File::open(file_name.clone()).unwrap();
+    let mut source_file = File::open(file_name).unwrap();
     let mut old_data = String::new();
     source_file.read_to_string(&mut old_data).unwrap();
     drop(source_file);
 
-    let json_file = File::open(file_name.clone()).unwrap();
+    let json_file = File::open(file_name).unwrap();
     let initial_list: serde_json::Value = serde_json::from_reader(json_file).unwrap();
     let length = match initial_list["list"].as_array() {
                         Some(arr) => arr.len(),
                         None => {
-                            log::debug!("{} could not get a list from {}", file_name.clone(), get_searchurl(title));
+                            log::debug!("{} could not get a list from {}", file_name, get_searchurl(title));
                             0
                         }
                     };
@@ -70,8 +70,8 @@ pub fn get_top_result(title: &str, user_id: i64) -> String {
         // check if this word is present in UD API
         is_valid_word = new_data.chars().any(|c| matches!(c, 'a'..='z')); // returns true/false
 
-        delete_file(file_name.clone());
-        let mut destination_file = File::create(file_name.clone()).unwrap();
+        delete_file(file_name);
+        let mut destination_file = File::create(file_name).unwrap();
         destination_file.write(new_data.as_bytes()).unwrap();
         drop(destination_file);
     } else {
@@ -80,7 +80,7 @@ pub fn get_top_result(title: &str, user_id: i64) -> String {
 
     let mut result = String::new();
     if is_valid_word {
-        let json_file = File::open(file_name.clone()).unwrap();
+        let json_file = File::open(file_name).unwrap();
         let value: serde_json::Value = serde_json::from_reader(json_file).unwrap();
 
         result.push_str(&get_each_input(&value, 0, length));
@@ -89,7 +89,7 @@ pub fn get_top_result(title: &str, user_id: i64) -> String {
     }
 
     // Delete file after it is used
-    delete_file(file_name.clone());
+    delete_file(file_name);
 
     result
 }
@@ -143,7 +143,7 @@ fn get_each_input(
 }
 
 pub fn get_inline_results(title: &str, user_id: i64, query_id: i64) -> Vec<InlineQueryResult> {
-    let file_name = format!("InlineQuery_{}_{}.json", user_id, query_id);
+    let file_name = &format!("InlineQuery_{}_{}.json", user_id, query_id)[..];
     let searchurl = get_searchurl(title);
 
     log::info!("Inline Query: {}", title);
@@ -158,24 +158,24 @@ pub fn get_inline_results(title: &str, user_id: i64, query_id: i64) -> Vec<Inlin
             Ok(value) => value,
             Err(_) => "",
         };
-        delete_file(file_name.clone());
-        create_file(file_name.clone());
-        write_to_file(file_name.clone(), api_data);
+        delete_file(file_name);
+        create_file(file_name);
+        write_to_file(file_name, api_data);
         Ok(data.len())
     }).unwrap();
     transfer.perform().unwrap();
 
-    let mut source_file = File::open(file_name.clone()).unwrap();
+    let mut source_file = File::open(file_name).unwrap();
     let mut old_data = String::new();
     source_file.read_to_string(&mut old_data).unwrap();
     drop(source_file);
 
-    let json_file = File::open(file_name.clone()).unwrap();
+    let json_file = File::open(file_name).unwrap();
     let initial_list: serde_json::Value = serde_json::from_reader(json_file).unwrap();
     let length = match initial_list["list"].as_array() {
                         Some(arr) => arr.len(),
                         None => {
-                            log::debug!("{} could not get a list from {}", file_name.clone(), get_searchurl(title));
+                            log::debug!("{} could not get a list from {}", file_name, get_searchurl(title));
                             0
                         }
                     };
@@ -191,8 +191,8 @@ pub fn get_inline_results(title: &str, user_id: i64, query_id: i64) -> Vec<Inlin
         // check if this word is present in UD API
         is_valid_word = new_data.chars().any(|c| matches!(c, 'a'..='z')); // returns true/false
 
-        delete_file(file_name.clone());
-        let mut destination_file = File::create(file_name.clone()).unwrap();
+        delete_file(file_name);
+        let mut destination_file = File::create(file_name).unwrap();
         destination_file.write(new_data.as_bytes()).unwrap();
         drop(destination_file);
     } else {
@@ -201,7 +201,7 @@ pub fn get_inline_results(title: &str, user_id: i64, query_id: i64) -> Vec<Inlin
 
     let mut result: Vec<InlineQueryResult> = Vec::new();
     if is_valid_word {
-        let json_file = File::open(file_name.clone()).unwrap();
+        let json_file = File::open(file_name).unwrap();
         let value: serde_json::Value = serde_json::from_reader(json_file).unwrap();
 
         for i in 0..length {
@@ -212,7 +212,7 @@ pub fn get_inline_results(title: &str, user_id: i64, query_id: i64) -> Vec<Inlin
     }
 
     // Delete file after it is used
-    delete_file(file_name.clone());
+    delete_file(file_name);
 
     result
 }
