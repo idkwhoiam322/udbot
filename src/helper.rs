@@ -20,8 +20,8 @@ pub fn get_top_result(title: &str, user_id: i64) -> String {
     let file_name = &format!("PMQuery_{}.json", user_id)[..];
 
     let searchurl = match title {
-                        "/wotd" | "/wordoftheday" => format!("http://api.urbandictionary.com/v0/words_of_the_day"),
-                        "/random" => format!("http://api.urbandictionary.com/v0/random"),
+                        "/wotd" | "/wordoftheday" => format!("https://api.urbandictionary.com/v0/words_of_the_day"),
+                        "/random" => format!("https://api.urbandictionary.com/v0/random"),
                         _ => get_searchurl(title),
                     };
 
