@@ -1,4 +1,4 @@
-FROM fedora:34
+FROM gcr.io/distroless/cc:latest
 
 WORKDIR /app
 COPY udbot /app
